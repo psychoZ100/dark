@@ -339,7 +339,10 @@ CreateElement("ScrollFrame", function(Color, Width)
 		ScrollBarImageColor3 = Color,
 		BorderSizePixel = 0,
 		ScrollBarThickness = Width,
-		CanvasSize = UDim2.new(0, 0, 0, 0)
+		CanvasSize = UDim2.new(0, 0, 0, 0),
+		ScrollBarImageTransparency = 0.5,
+		ScrollingDirection = Enum.ScrollingDirection.Y,
+		VerticalScrollBarPosition = Enum.VerticalScrollBarPosition.Right
 	})
 	return ScrollFrame
 end)
@@ -763,9 +766,21 @@ function OrionLib:MakeWindow(WindowConfig)
 			MakeElement("List", 0, 6),
 			MakeElement("Padding", 15, 10, 10, 15)
 		}), "Divider")
-
+		
+		AddConnection(Container:GetPropertyChangedSignal("AbsoluteWindowSize"), function()
+			task.wait(0.1)
+			Container.CanvasSize = UDim2.new(0, 0, 0, Container.UIListLayout.AbsoluteContentSize.Y + 30)
+		end)
+		
 		AddConnection(Container.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"), function()
 			Container.CanvasSize = UDim2.new(0, 0, 0, Container.UIListLayout.AbsoluteContentSize.Y + 30)
+		end)
+		
+		AddConnection(Container:GetPropertyChangedSignal("Visible"), function()
+			if Container.Visible then
+				task.wait(0.1)
+				Container.CanvasSize = UDim2.new(0, 0, 0, Container.UIListLayout.AbsoluteContentSize.Y + 30)
+			end
 		end)
 
 		if FirstTab then
